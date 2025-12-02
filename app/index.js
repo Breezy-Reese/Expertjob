@@ -15,8 +15,8 @@ export default function Index() {
         </Link>
         
         <Link href="/(auth)/login" asChild>
-          <TouchableOpacity style={[styles.button, styles.outlineButton]}>
-            <Text style={[styles.buttonText, styles.outlineButtonText]}>Login</Text>
+          <TouchableOpacity style={styles.outlineButton}>
+            <Text style={styles.outlineButtonText}>Login</Text>
           </TouchableOpacity>
         </Link>
       </View>
@@ -56,6 +56,9 @@ const styles = StyleSheet.create({
   },
   outlineButton: {
     backgroundColor: 'transparent',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
     borderWidth: 2,
     borderColor: '#007AFF',
   },
@@ -66,5 +69,7 @@ const styles = StyleSheet.create({
   },
   outlineButtonText: {
     color: '#007AFF',
+    fontSize: 18,
+    fontWeight: '600',
   },
 });
