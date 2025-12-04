@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Linking } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
+import ApplicationForm from '../../components/EmployerApplicationForm';
 
 export default function JobDetails() {
   const { id } = useLocalSearchParams();
@@ -12,32 +13,10 @@ export default function JobDetails() {
   const job = jobs.find(j => j.id === id);
 
   const [isApplying, setIsApplying] = useState(false);
+  const [showApplicationForm, setShowApplicationForm] = useState(false);
 
   const handleApply = async () => {
-    if (userType === 'employer') {
-      Alert.alert('Employer Account', 'Employers cannot apply for jobs. Switch to employee account.');
-      return;
-    }
-
-    setIsApplying(true);
-    // Simulate application process
-    setTimeout(() => {
-      setIsApplying(false);
-      Alert.alert(
-        'Application Submitted!',
-        'Your application has been submitted successfully. You can track its status in the Applications tab.',
-        [
-          {
-            text: 'View Applications',
-            onPress: () => router.push('/(tabs)/applications'),
-          },
-          {
-            text: 'OK',
-            style: 'default',
-          },
-        ]
-      );
-    }, 2000);
+    setShowApplicationForm(true);
   };
 
   const handleContact = () => {
@@ -65,17 +44,15 @@ export default function JobDetails() {
 
       {/* Action Buttons */}
       <View style={styles.actionButtons}>
-        {userType === 'employee' && (
-          <TouchableOpacity 
-            style={[styles.applyButton, isApplying && styles.applyButtonDisabled]} 
-            onPress={handleApply}
-            disabled={isApplying}
-          >
-            <Text style={styles.applyButtonText}>
-              {isApplying ? 'Applying...' : 'Apply Now'}
-            </Text>
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity
+          style={[styles.applyButton, isApplying && styles.applyButtonDisabled]}
+          onPress={handleApply}
+          disabled={isApplying}
+        >
+          <Text style={styles.applyButtonText}>
+            {isApplying ? 'Applying...' : 'Apply Now'}
+          </Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.contactButton} onPress={handleContact}>
           <Text style={styles.contactButtonText}>Contact HR</Text>
         </TouchableOpacity>
@@ -113,10 +90,17 @@ export default function JobDetails() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>About {job.company}</Text>
         <Text style={styles.description}>
-          {job.company} is a leading company in the tech industry, dedicated to innovation and excellence. 
+          {job.company} is a leading company in the tech industry, dedicated to innovation and excellence.
           We value our employees and provide a supportive environment for professional growth.
         </Text>
       </View>
+
+      {/* Application Form */}
+      <ApplicationForm
+        visible={showApplicationForm}
+        onClose={() => setShowApplicationForm(false)}
+        job={job}
+      />
     </ScrollView>
   );
 }

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
-import { setApplications } from '../../src/store/jobsSlice';
+import { useEffect, useState } from 'react';
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { approveApplication, rejectApplication, setApplications } from '../../src/store/jobsSlice';
 
 // Mock applications data
 // Change from Date objects to ISO strings
@@ -9,29 +9,41 @@ const mockApplications = [
   {
     id: '1',
     jobId: '1',
-    jobTitle: 'Senior React Native Developer',
+    employerId: 'employer1', // TechCorp Inc.
+    jobTitle: 'Senior JavaScript Developer',
+    jobType: 'Full-time',
     company: 'TechCorp Inc.',
     status: 'pending',
-    appliedAt: '2024-01-15T00:00:00.000Z', // Cha
+    appliedAt: '2024-01-15T00:00:00.000Z',
     feedback: '',
+    applicantName: 'John Doe',
+    applicantEmail: 'john.doe@email.com',
   },
   {
     id: '2',
     jobId: '2',
+    employerId: 'employer2', // SwahiliPot
     jobTitle: 'Frontend Developer',
-    company: 'WebSolutions LLC',
+    jobType: 'Remote',
+    company: 'SwahiliPot',
     status: 'approved',
-    appliedAt: '2024-01-10T00:00:00.000Z', 
+    appliedAt: '2024-01-10T00:00:00.000Z',
     feedback: 'Great profile! We would like to schedule an interview.',
+    applicantName: 'Jane Smith',
+    applicantEmail: 'jane.smith@email.com',
   },
   {
     id: '3',
     jobId: '3',
+    employerId: 'employer3', // AppMasters
     jobTitle: 'Mobile App Developer',
+    jobType: 'Contract',
     company: 'AppMasters',
     status: 'rejected',
-    appliedAt: '2024-01-05T00:00:00.000Z', 
+    appliedAt: '2024-01-05T00:00:00.000Z',
     feedback: 'Unfortunately, we found a candidate with more relevant experience.',
+    applicantName: 'Bob Johnson',
+    applicantEmail: 'bob.johnson@email.com',
   },
 ];
 
@@ -101,14 +113,92 @@ export default function Applications() {
   );
 
   if (userType === 'employer') {
+    // For demo purposes, assume current employer is 'employer1'
+    // In real app, this would come from auth state
+    const currentEmployerId = 'employer1';
+
+    const employerApplications = applications.filter(app => app.employerId === currentEmployerId);
+
+    const handleApprove = (applicationId) => {
+      dispatch(approveApplication({ applicationId }));
+      Alert.alert('Success', 'Application approved successfully!');
+    };
+
+    const handleReject = (applicationId) => {
+      dispatch(rejectApplication({ applicationId }));
+      Alert.alert('Success', 'Application rejected.');
+    };
+
+    const renderEmployerApplication = ({ item }) => (
+      <View style={styles.applicationCard}>
+        <View style={styles.applicationHeader}>
+          <View style={styles.jobInfo}>
+            <Text style={styles.jobTitle}>{item.jobTitle}</Text>
+            <Text style={styles.company}>{item.company}</Text>
+            <Text style={styles.jobType}>{item.jobType}</Text>
+            <Text style={styles.applicantName}>Applicant: {item.applicantName}</Text>
+            <Text style={styles.applicantEmail}>{item.applicantEmail}</Text>
+          </View>
+          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
+            <Text style={styles.statusText}>{getStatusText(item.status)}</Text>
+          </View>
+        </View>
+
+        <Text style={styles.appliedDate}>
+          Applied on {new Date(item.appliedAt).toLocaleDateString()}
+        </Text>
+
+        {item.feedback && (
+          <View style={styles.feedbackSection}>
+            <Text style={styles.feedbackLabel}>Feedback:</Text>
+            <Text style={styles.feedback}>{item.feedback}</Text>
+          </View>
+        )}
+
+        {item.status === 'pending' && (
+          <View style={styles.actionButtons}>
+            <TouchableOpacity
+              style={styles.approveButton}
+              onPress={() => handleApprove(item.id)}
+            >
+              <Text style={styles.approveButtonText}>Approve</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.rejectButton}
+              onPress={() => handleReject(item.id)}
+            >
+              <Text style={styles.rejectButtonText}>Reject</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    );
+
     return (
       <View style={styles.container}>
-        <Text style={styles.employerMessage}>
-          👋 Employer View
-        </Text>
-        <Text style={styles.employerSubtitle}>
-          View and manage job applications from candidates in the Jobs section.
-        </Text>
+        <View style={styles.header}>
+          <Text style={styles.title}>Job Applications</Text>
+          <Text style={styles.subtitle}>
+            Review and manage applications for your posted jobs
+          </Text>
+        </View>
+
+        {employerApplications.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateTitle}>No applications yet</Text>
+            <Text style={styles.emptyStateText}>
+              Applications to your jobs will appear here.
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={employerApplications}
+            renderItem={renderEmployerApplication}
+            keyExtractor={item => item.id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
+          />
+        )}
       </View>
     );
   }
@@ -252,6 +342,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
   },
+  jobType: {
+    fontSize: 14,
+    color: '#888',
+    marginTop: 2,
+  },
   statusBadge: {
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -314,5 +409,46 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     lineHeight: 24,
+  },
+  applicantName: {
+    fontSize: 14,
+    color: '#555',
+    marginTop: 5,
+  },
+  applicantEmail: {
+    fontSize: 14,
+    color: '#777',
+    marginTop: 2,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 15,
+  },
+  approveButton: {
+    backgroundColor: '#28a745',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 5,
+  },
+  approveButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  rejectButton: {
+    backgroundColor: '#dc3545',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    flex: 1,
+    marginLeft: 5,
+  },
+  rejectButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

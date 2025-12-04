@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { Link } from 'expo-router';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useEffect } from 'react';
+import { FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import { setJobs, setTopJobs } from '../../src/store/jobsSlice';
 
 // Mock data - replace with actual API calls
@@ -17,6 +17,7 @@ const mockJobs = [
     description: 'We are looking for an experienced React Native developer...',
     requirements: ['5+ years React Native', 'TypeScript', 'Redux'],
     benefits: ['Health insurance', 'Remote work', 'Flexible hours'],
+    employerId: 'employer1',
   },
   {
     id: '2',
@@ -29,6 +30,7 @@ const mockJobs = [
     description: 'Join our frontend team to build amazing web applications...',
     requirements: ['3+ years React', 'JavaScript', 'CSS'],
     benefits: ['Stock options', 'Learning budget', 'Team events'],
+    employerId: 'employer2',
   },
   {
     id: '3',
@@ -41,6 +43,7 @@ const mockJobs = [
     description: 'Develop cutting-edge mobile applications for iOS and Android...',
     requirements: ['React Native/Flutter', 'REST APIs', 'Git'],
     benefits: ['Fully remote', 'Unlimited PTO', 'Hardware budget'],
+    employerId: 'employer3',
   },
 ];
 
@@ -172,18 +175,6 @@ const styles = StyleSheet.create({
   },
   carousel: {
     marginBottom: 20,
-  },
-   jobCard: {
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-    // Replace shadow properties
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
   },
   jobCard: {
     backgroundColor: '#fff',

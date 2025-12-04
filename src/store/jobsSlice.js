@@ -35,25 +35,52 @@ const jobsSlice = createSlice({
     addJob: (state, action) => {
       state.jobs.unshift(action.payload);
     },
+    addApplication: (state, action) => {
+      const newApplication = {
+        ...action.payload,
+        id: Date.now().toString(), // Generate a unique ID
+        appliedAt: action.payload.appliedAt || new Date().toISOString(),
+      };
+      state.applications.unshift(newApplication);
+    },
     updateApplication: (state, action) => {
       const { applicationId, updates } = action.payload;
       const index = state.applications.findIndex(app => app.id === applicationId);
       if (index !== -1) {
-        state.applications[index] = { 
-          ...state.applications[index], 
-          ...updates 
+        state.applications[index] = {
+          ...state.applications[index],
+          ...updates
         };
+      }
+    },
+    approveApplication: (state, action) => {
+      const { applicationId } = action.payload;
+      const index = state.applications.findIndex(app => app.id === applicationId);
+      if (index !== -1) {
+        state.applications[index].status = 'approved';
+        state.applications[index].feedback = 'Your application has been approved! We will contact you soon.';
+      }
+    },
+    rejectApplication: (state, action) => {
+      const { applicationId } = action.payload;
+      const index = state.applications.findIndex(app => app.id === applicationId);
+      if (index !== -1) {
+        state.applications[index].status = 'rejected';
+        state.applications[index].feedback = 'Unfortunately, your application was not selected at this time.';
       }
     },
   },
 });
 
-export const { 
-  setJobs, 
-  setTopJobs, 
-  setApplications, 
-  setLoading, 
-  addJob, 
-  updateApplication 
+export const {
+  setJobs,
+  setTopJobs,
+  setApplications,
+  setLoading,
+  addJob,
+  addApplication,
+  updateApplication,
+  approveApplication,
+  rejectApplication
 } = jobsSlice.actions;
 export default jobsSlice.reducer;

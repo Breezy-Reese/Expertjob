@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, TextInput, ScrollView } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
+import { useRouter } from 'expo-router';
 import { signOut } from 'firebase/auth';
+import { useState } from 'react';
+import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import { auth } from '../../src/services/firebase';
 import { logout } from '../../src/store/authSlice';
-import { useRouter } from 'expo-router';
 
 export default function Profile() {
   const dispatch = useDispatch();
@@ -12,6 +12,7 @@ export default function Profile() {
   const { user, userType } = useSelector(state => state.auth);
   
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [profile, setProfile] = useState({
     fullName: 'John Doe',
     email: user?.email || 'user@example.com',
@@ -29,15 +30,17 @@ export default function Profile() {
         { 
           text: 'Logout', 
           style: 'destructive',
-          onPress: async () => {
-            try {
-              await signOut(auth);
-              dispatch(logout());
-              router.replace('/');
-            } catch (error) {
-              Alert.alert('Error', 'Failed to logout');
+            onPress: async () => {
+              setIsLoggingOut(true);
+              try {
+                await signOut(auth);
+                dispatch(logout());
+                router.replace('/(auth)/login');
+              } catch (error) {
+                setIsLoggingOut(false);
+                Alert.alert('Error', 'Failed to logout');
+              }
             }
-          }
         },
       ]
     );
@@ -171,8 +174,8 @@ export default function Profile() {
       </View>
 
       {/* Logout Button */}
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutButtonText}>Logout</Text>
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout} disabled={isLoggingOut}>
+        <Text style={styles.logoutButtonText}>{isLoggingOut ? 'Logging out...' : 'Logout'}</Text>
       </TouchableOpacity>
     </ScrollView>
   );
