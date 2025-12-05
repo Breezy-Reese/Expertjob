@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { Link, useLocalSearchParams } from 'expo-router';
 import React, { useEffect } from 'react';
 import { FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -51,12 +51,15 @@ export default function Home() {
   const dispatch = useDispatch();
   const { jobs, topJobs } = useSelector(state => state.jobs);
   const { userType } = useSelector(state => state.auth);
+  const { submitted } = useLocalSearchParams();
 
   useEffect(() => {
     // Simulate API call
     dispatch(setJobs(mockJobs));
     dispatch(setTopJobs(mockJobs.slice(0, 2)));
   }, []);
+
+
 
   const renderTopJob = ({ item }) => (
     <Link href={`/jobs/${item.id}`} asChild>

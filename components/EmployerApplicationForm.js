@@ -81,16 +81,12 @@ export default function ApplicationForm({ visible, onClose, job }) {
       dispatch(addApplication(applicationData));
 
       setIsSubmitted(true);
-      Alert.alert('Success', 'Successfully submitted application!', [
-        {
-          text: 'OK',
-          onPress: () => {
-            setIsSubmitted(false);
-            onClose();
-            router.push('/(tabs)/index');
-          }
-        }
-      ]);
+      // Notify user of successful submission, then redirect to jobs page
+      Alert.alert('Success', 'Your application has been submitted successfully! You will be redirected to the jobs page.');
+      onClose();
+      setTimeout(() => {
+        router.push('/jobs');
+      }, 2000);
     } catch (error) {
       console.error('Error submitting application:', error);
       Alert.alert('Error', 'Failed to submit application. Please try again.');
@@ -183,8 +179,8 @@ export default function ApplicationForm({ visible, onClose, job }) {
           <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
             <Text style={styles.cancelButtonText}>Cancel</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-            <Text style={styles.submitButtonText}>Submit Application</Text>
+          <TouchableOpacity style={[styles.submitButton, isSubmitted && styles.submitButtonDisabled]} onPress={handleSubmit} disabled={isSubmitted}>
+            <Text style={styles.submitButtonText}>{isSubmitted ? "Successful Submit" : "Submit Application"}</Text>
           </TouchableOpacity>
         </View>
       </View>
