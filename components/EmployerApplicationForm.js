@@ -83,8 +83,8 @@ export default function ApplicationForm({ visible, onClose, job }) {
       setIsSubmitted(true);
       // Notify user of successful submission, then redirect to jobs page
       Alert.alert('Success', 'Your application has been submitted successfully! You will be redirected to the jobs page.');
-      onClose();
       setTimeout(() => {
+        onClose();
         router.push('/jobs');
       }, 2000);
     } catch (error) {
