@@ -1,16 +1,16 @@
-# TODO List for Employer Job Application Form
+# TODO List for Enhancing Login Form with Additional Details
 
 ## Tasks
-- [x] Create EmployerApplicationForm component with fields for company name, contact email, phone, cover letter, and resume URL
-- [x] Modify app/jobs/[id].js to show the form modal for employers instead of blocking application
-- [x] Integrate form submission with existing application process
-- [x] Test the form submission and ensure it saves to applications state/store
+- [x] Add required fields (fullName, phone) to login form state
+- [x] Update login form UI to include new required input fields
+- [x] Modify handleLogin function to save additional details to Firestore
+- [x] Update validation to require all fields including name and phone
+- [x] Fix missing setDoc import in login.js
 
 ## Dependent Files
-- app/jobs/[id].js
-- New component: EmployerApplicationForm.js (to be created in components/)
+- app/(auth)/login.js
 
 ## Followup Steps
-- [ ] Test the application flow for employers
-- [ ] Verify form validation and error handling
-- [ ] Ensure compatibility with existing job application system
+- [x] Test the updated login form for new and existing users
+- [x] Verify additional details are saved to Firestore
+- [x] Check validation and error handling

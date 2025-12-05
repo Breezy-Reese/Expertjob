@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../src/services/firebase';
+import { doc, setDoc } from 'firebase/firestore';
+import { useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useDispatch } from 'react-redux';
+import { auth, db } from '../../src/services/firebase';
 import { setUser, setUserType } from '../../src/store/authSlice';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
   const [selectedUserType, setSelectedUserType] = useState('employee'); // Renamed this
   const [loading, setLoading] = useState(false);
   
@@ -16,7 +19,7 @@ export default function Login() {
   const dispatch = useDispatch();
 
   const handleLogin = async () => {
-    if (!email || !password) {
+    if (!email || !password || !fullName || !phone) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
@@ -25,10 +28,20 @@ export default function Login() {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      
+
+      // Save user profile with additional details
+      const userData = {
+        fullName,
+        phone,
+        email: user.email,
+        userType: selectedUserType,
+        createdAt: new Date(),
+      };
+      await setDoc(doc(db, 'users', user.uid), userData);
+
       dispatch(setUser(user));
       dispatch(setUserType(selectedUserType)); // Use the renamed variable
-      
+
       // Navigate to main app
       router.replace('/(tabs)');
     } catch (error) {
@@ -79,6 +92,19 @@ export default function Login() {
           value={password}
           onChangeText={setPassword}
           secureTextEntry
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Full Name"
+          value={fullName}
+          onChangeText={setFullName}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Phone Number"
+          value={phone}
+          onChangeText={setPhone}
+          keyboardType="phone-pad"
         />
 
         <TouchableOpacity style={styles.forgotPassword}>

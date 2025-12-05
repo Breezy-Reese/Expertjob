@@ -1,49 +1,68 @@
-import { useRouter } from 'expo-router';
 import { signOut } from 'firebase/auth';
-import { useState } from 'react';
+import { doc, getDoc } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
 import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { auth } from '../../src/services/firebase';
+import { auth, db } from '../../src/services/firebase';
 import { logout } from '../../src/store/authSlice';
 
 export default function Profile() {
   const dispatch = useDispatch();
-  const router = useRouter();
   const { user, userType } = useSelector(state => state.auth);
   
   const [isEditing, setIsEditing] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState({
-    fullName: 'John Doe',
-    email: user?.email || 'user@example.com',
-    phone: '+1 (555) 123-4567',
-    location: 'San Francisco, CA',
-    bio: 'Experienced software developer with 5+ years in mobile app development.',
+    fullName: '',
+    email: user?.email || '',
+    phone: '',
+    location: '',
+    bio: '',
   });
 
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user?.uid) {
+        try {
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            setProfile({
+              fullName: userData.fullName || '',
+              email: user?.email || '',
+              phone: userData.phone || '',
+              location: userData.location || '',
+              bio: userData.bio || '',
+            });
+          }
+        } catch (error) {
+          console.error('Error fetching user profile:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, [user]);
+
   const handleLogout = async () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Logout', 
-          style: 'destructive',
-            onPress: async () => {
-              setIsLoggingOut(true);
-              try {
-                await signOut(auth);
-                dispatch(logout());
-                router.replace('/(auth)/login');
-              } catch (error) {
-                setIsLoggingOut(false);
-                Alert.alert('Error', 'Failed to logout');
-              }
-            }
-        },
-      ]
-    );
+    console.log('Logout button pressed');
+    console.log('Starting logout process');
+    setIsLoggingOut(true);
+    try {
+      console.log('About to sign out from Firebase');
+      await signOut(auth);
+      console.log('Successfully signed out from Firebase');
+      console.log('About to dispatch logout to Redux');
+      dispatch(logout());
+      console.log('Successfully dispatched logout to Redux');
+    } catch (error) {
+      console.log('Error during logout:', error);
+      setIsLoggingOut(false);
+      Alert.alert('Error', 'Failed to logout');
+    }
   };
 
   const handleSaveProfile = () => {
